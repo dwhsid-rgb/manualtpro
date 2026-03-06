@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow">
+  <title>社内マニュアル</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#fff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --accent:#2563eb;
+      --danger:#ef4444;
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+      --r:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(246,247,251,.92);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:16px}
+    h1{margin:6px 0 0; font-size:26px}
+    .sub{margin:6px 0 12px; color:var(--muted); font-size:13px; line-height:1.5}
+    .toprow{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    .grid{display:grid; gap:14px; grid-template-columns:1fr}
+    @media(min-width:960px){ .grid{grid-template-columns:460px 1fr} }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel h2{
+      margin:0;
+      padding:14px 16px;
+      font-size:16px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .panel .body{padding:14px 16px}
+
+    .search{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      outline:none;
+      background:#fff;
+    }
+
+    details{border-top:1px solid var(--border)}
+    details:first-of-type{border-top:none}
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:14px 16px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    summary::-webkit-details-marker{display:none}
+
+    .badge{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:5px 9px;
+      border-radius:999px;
+      white-space:nowrap;
+      background:#fff;
+    }
+
+    .items{padding:0 8px 10px}
+
+    .itemBtn{
+      width:100%;
+      text-align:left;
+      padding:12px;
+      margin:6px 0;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      cursor:pointer;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .itemBtn:hover{border-color:#c7d2fe}
+    .itemBtn.active{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    .itemTitle{font-weight:800}
+    .itemNote{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.35}
+    .content{white-space:pre-wrap; line-height:1.85; font-size:15px}
+    .hint{color:var(--muted); font-size:13px; line-height:1.6}
+    .small{font-size:12px; color:var(--muted); line-height:1.6}
+    .k{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .metaLine{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .pill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.02);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .btnRow{display:flex; gap:8px; flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding:9px 10px;
+      cursor:pointer;
+      font-weight:750;
+      color:var(--text);
+    }
+    .btn:hover{border-color:#c7d2fe}
+    .btn.primary{border-color:#bfdbfe; background:rgba(37,99,235,.08)}
+    .btn.danger{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.08); color:#991b1b}
+    .btn:disabled{opacity:.5; cursor:not-allowed}
+
+    .hr{height:1px; background:var(--border); margin:12px 0}
+    .error{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #fecaca;
+      background:#fef2f2;
+      color:#991b1b;
+      font-size:13px;
+      line-height:1.6;
+      display:none;
+    }
+
+    .toolRow{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .miniBtn{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:10px;
+      padding:6px 8px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:700;
+      color:var(--text);
+    }
+    .miniBtn:hover{border-color:#c7d2fe}
+    .miniBtn.danger{
+      border-color:rgba(239,68,68,.35);
+      color:#991b1b;
+      background:rgba(239,68,68,.06);
+    }
+    .miniBtn:disabled{opacity:.45; cursor:not-allowed}
+
+    dialog{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      width:min(760px, 94vw);
+    }
+    dialog::backdrop{background:rgba(0,0,0,.55)}
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .modalBody{padding:14px 16px}
+    .modalFoot{
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:10px 0 6px;
+    }
+    input[type="text"], textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      outline:none;
+      font-size:14px;
+      background:#fff;
+      color:var(--text);
+    }
+    textarea{
+      min-height:220px;
+      resize:vertical;
+      line-height:1.7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="toprow">
+        <div>
+          <h1 id="siteTitle">社内マニュアル</h1>
+          <div class="sub" id="siteDesc">読み込み中...</div>
+        </div>
+        <div class="btnRow">
+          <button class="btn" id="copyLinkBtn">この詳細リンクをコピー</button>
+          <button class="btn" id="loadPublishedBtn">公開中データを読み込む</button>
+          <button class="btn" id="exportBtn">data.json書き出し</button>
+          <button class="btn" id="importBtn">読み込み</button>
+          <button class="btn danger" id="resetBtn">初期化</button>
+          <span class="pill" id="modePill">閲覧</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <div class="panel">
+        <h2>
+          <span>目次</span>
+          <div class="btnRow">
+            <span class="pill" id="countPill">0件</span>
+            <button class="btn primary" id="addCatBtn">＋カテゴリ</button>
+          </div>
+        </h2>
+        <div class="body">
+          <input class="search" id="q" type="search" placeholder="検索（カテゴリ / 項目 / 本文）" />
+          <div class="small" id="tocHint" style="margin-top:10px"></div>
+          <div class="error" id="loadError"></div>
+        </div>
+        <div id="toc"></div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span id="detailTitle">詳細</span>
+          <button class="btn primary" id="editItemBtn">編集</button>
+        </h2>
+        <div class="body">
+          <div class="metaLine">
+            <span class="pill" id="detailCatPill">-</span>
+            <span class="pill" id="detailUpdatedPill">更新: -</span>
+          </div>
+          <div style="height:10px"></div>
+          <div class="hint" id="detailNote">左から項目を選んでください。</div>
+          <div class="hr"></div>
+          <div class="content" id="detailBody"></div>
+          <div style="height:14px"></div>
+          <div class="btnRow">
+            <button class="btn" id="addItemBtn">＋見出し（項目）</button>
+            <button class="btn danger" id="deleteItemBtn">この項目を削除</button>
+            <span class="pill k" id="detailIds">#</span>
+          </div>
+          <div class="small" style="margin-top:10px">
+            編集はこの端末のブラウザに保存されます。公開に反映したいときは data.json を書き出して GitHub の data.json を差し替えてください。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="catDlg">
+    <div class="modalHead">
+      <strong id="catDlgTitle">カテゴリ</strong>
+      <span class="pill k" id="catIdPill">ID:-</span>
+    </div>
+    <div class="modalBody">
+      <label>カテゴリ名</label>
+      <input type="text" id="catName" placeholder="例：dカード / 手続き / トラブル対応" />
+      <div class="small">カテゴリを削除すると、その中の項目も消えます。</div>
+    </div>
+    <div class="modalFoot">
+      <button class="btn" id="catCancel">キャンセル</button>
+      <button class="btn danger" id="catDelete">削除</button>
+      <button class="btn primary" id="catSave">保存</button>
+    </div>
+  </dialog>
+
+  <dialog id="itemDlg">
+    <div class="modalHead">
+      <strong id="itemDlgTitle">項目</strong>
+      <span class="pill k" id="itemIdPill">ID:-</span>
+    </div>
+    <div class="modalBody">
+      <label>見出し（項目名）</label>
+      <input type="text" id="itemTitle" placeholder="例：GOLD / プラチナ / 本人確認" />
+      <label>メモ（任意・目次に表示）</label>
+      <input type="text" id="itemNote" placeholder="例：年会費/特典/注意点 など" />
+      <label>本文</label>
+      <textarea id="itemBody" placeholder="■ 目的&#10;...&#10;&#10;■ 手順&#10;1. ..."></textarea>
+    </div>
+    <div class="modalFoot">
+      <button class="btn" id="itemCancel">キャンセル</button>
+      <button class="btn primary" id="itemSave">保存</button>
+    </div>
+  </dialog>
+
+  <dialog id="importDlg">
+    <div class="modalHead">
+      <strong>JSON読み込み</strong>
+    </div>
+    <div class="modalBody">
+      <label>ここに JSON を貼って読み込み</label>
+      <textarea id="importText" placeholder='{"site":{"title":"...","desc":"..."},"categories":[...]}'></textarea>
+      <div class="small">現在のブラウザ保存データを上書きします。</div>
+    </div>
+    <div class="modalFoot">
+      <button class="btn" id="importCancel">閉じる</button>
+      <button class="btn primary" id="importDo">読み込む</button>
+    </div>
+  </dialog>
+
+  <script>
+    const STORAGE_KEY = "manual_browser_editor_v2";
+    const isEditMode = new URLSearchParams(location.search).get("edit") === "1";
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      data: null,
+      query: "",
+      current: { catId:null, itemId:null }
+    };
+
+    function nowISO(){ return new Date().toISOString(); }
+    function fmt(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString("ja-JP", {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"});
+      }catch(e){ return "-"; }
+    }
+    function shortId(){
+      return Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 6);
+    }
+    function normalize(s){ return String(s || "").toLowerCase().trim(); }
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[s]));
+    }
+
+    function defaultData(){
+      const t = nowISO();
+      return {
+        site: {
+          title: "社内マニュアル",
+          desc: "カテゴリ → 見出し（項目）→ 詳細。編集はURL末尾に ?edit=1"
+        },
+        categories: [
+          {
+            id: "dcards",
+            title: "dカード",
+            updatedAt: t,
+            items: [
+              {
+                id: "gold",
+                title: "GOLD",
+                note: "年会費 / 特典 / 申込条件",
+                body: "■ 目的\nGOLDの要点をまとめる\n\n■ 手順\n1. 公式情報を確認する\n2. 社内案内文テンプレを使う\n3. 例外ケースは管理者へ相談する",
+                createdAt: t,
+                updatedAt: t
+              },
+              {
+                id: "platinum",
+                title: "プラチナ",
+                note: "対象者 / 注意点",
+                body: "■ 注意\n・通常案内と混同しない\n・必ず対象条件を確認する",
+                createdAt: t,
+                updatedAt: t
+              }
+            ]
+          },
+          {
+            id: "procedure",
+            title: "手続き",
+            updatedAt: t,
+            items: [
+              {
+                id: "kyc",
+                title: "本人確認",
+                note: "差し戻し例",
+                body: "■ 手順\n1. 提出書類を確認\n2. 有効期限を確認\n3. 住所一致を確認\n\n■ 差し戻し例\n・画像が不鮮明\n・期限切れ\n・住所不一致",
+                createdAt: t,
+                updatedAt: t
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    function saveLocal(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+      render();
+    }
+
+    function loadLocal(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return null;
+        const parsed = JSON.parse(raw);
+        if(!parsed?.categories || !Array.isArray(parsed.categories)) return null;
+        return parsed;
+      }catch(e){
+        return null;
+      }
+    }
+
+    async function loadPublished(){
+      try{
+        $("loadError").style.display = "none";
+        const res = await fetch("./data.json?v=" + Date.now(), {cache:"no-store"});
+        if(!res.ok) throw new Error(`data.json の読み込み失敗 (${res.status})`);
+        const data = await res.json();
+        if(!data?.categories || !Array.isArray(data.categories)){
+          throw new Error("data.json の形式が不正です");
+        }
+        state.data = data;
+        saveLocal();
+      }catch(err){
+        $("loadError").style.display = "";
+        $("loadError").textContent = "公開中の data.json を読み込めませんでした。data.json が存在するか、JSONの形式が正しいか確認してください。";
+        console.error(err);
+      }
+    }
+
+    function initData(){
+      const local = loadLocal();
+      state.data = local || defaultData();
+    }
+
+    function getHash(){
+      const h = location.hash || "";
+      const m = h.match(/^#\/c\/([^\/]+)\/i\/([^\/]+)$/);
+      if(!m) return {catId:null,itemId:null};
+      return {
+        catId: decodeURIComponent(m[1]),
+        itemId: decodeURIComponent(m[2])
+      };
+    }
+
+    function setHash(catId, itemId){
+      location.hash = `#/c/${encodeURIComponent(catId)}/i/${encodeURIComponent(itemId)}`;
+    }
+
+    function findCat(catId){
+      return state.data?.categories?.find(c => c.id === catId) || null;
+    }
+
+    function findItem(catId, itemId){
+      const c = findCat(catId);
+      if(!c) return null;
+      return c.items.find(i => i.id === itemId) || null;
+    }
+
+    function filterCats(){
+      if(!state.data) return [];
+      const q = normalize(state.query);
+      if(!q) return state.data.categories;
+
+      const out = [];
+      for(const c of state.data.categories){
+        const catHit = normalize(c.title).includes(q);
+        const items = c.items.filter(i => {
+          const hay = normalize(`${i.title} ${i.note || ""} ${i.body || ""}`);
+          return hay.includes(q);
+        });
+        if(catHit) out.push({...c, items:[...c.items]});
+        else if(items.length) out.push({...c, items});
+      }
+      return out;
+    }
+
+    function renderHeader(){
+      if(!state.data) return;
+      $("siteTitle").textContent = state.data.site?.title || "社内マニュアル";
+      $("siteDesc").innerHTML = `${escapeHtml(state.data.site?.desc || "")}${isEditMode ? "（編集モード）" : ""}`;
+      document.title = state.data.site?.title || "社内マニュアル";
+
+      $("modePill").textContent = isEditMode ? "編集" : "閲覧";
+      $("addCatBtn").disabled = !isEditMode;
+      $("importBtn").disabled = !isEditMode;
+      $("resetBtn").disabled = !isEditMode;
+      $("editItemBtn").disabled = !isEditMode;
+      $("addItemBtn").disabled = !isEditMode;
+      $("deleteItemBtn").disabled = !isEditMode;
+
+      $("tocHint").innerHTML = isEditMode
+        ? "編集モード：ブラウザ上で編集できます。公開へ反映したいときは data.json を書き出して GitHub の data.json を差し替えてください。"
+        : "閲覧モードです。編集するには URL 末尾に ?edit=1 を付けて開いてください。";
+    }
+
+    function renderTOC(){
+      const tocEl = $("toc");
+      tocEl.innerHTML = "";
+
+      const cats = filterCats();
+      let total = 0;
+
+      for(const c of cats){
+        total += c.items.length;
+
+        const d = document.createElement("details");
+        d.open = true;
+
+        const s = document.createElement("summary");
+        s.innerHTML = `
+          <span>${escapeHtml(c.title)}</span>
+          <span class="badge">${c.items.length}件</span>
+        `;
+        d.appendChild(s);
+
+        const box = document.createElement("div");
+        box.className = "items";
+
+        if(isEditMode){
+          const catTool = document.createElement("div");
+          catTool.className = "toolRow";
+          catTool.innerHTML = `
+            <button class="miniBtn">カテゴリ設定</button>
+            <button class="miniBtn">＋見出し追加</button>
+          `;
+          const [catEditBtn, addItemBtn] = catTool.querySelectorAll("button");
+          catEditBtn.addEventListener("click", ()=> openCatEditor(c.id));
+          addItemBtn.addEventListener("click", ()=> openItemCreate(c.id));
+          box.appendChild(catTool);
+        }
+
+        for(let idx = 0; idx < c.items.length; idx++){
+          const it = c.items[idx];
+          const wrap = document.createElement("div");
+
+          const b = document.createElement("button");
+          b.className = "itemBtn";
+          b.type = "button";
+          b.dataset.cat = c.id;
+          b.dataset.item = it.id;
+          b.innerHTML = `
+            <div>
+              <div class="itemTitle">${escapeHtml(it.title)}</div>
+              <div class="itemNote">${escapeHtml(it.note || "")}</div>
+            </div>
+            <div class="badge k">#${escapeHtml(c.id)}/${escapeHtml(it.id)}</div>
+          `;
+          b.addEventListener("click", ()=> openDetail(c.id, it.id));
+          wrap.appendChild(b);
+
+          if(isEditMode){
+            const tool = document.createElement("div");
+            tool.className = "toolRow";
+            tool.innerHTML = `
+              <button class="miniBtn">↑ 上へ</button>
+              <button class="miniBtn">↓ 下へ</button>
+            `;
+            const [upBtn, downBtn] = tool.querySelectorAll("button");
+            upBtn.disabled = idx === 0;
+            downBtn.disabled = idx === c.items.length - 1;
+            upBtn.addEventListener("click", ()=> moveItem(c.id, idx, idx - 1));
+            downBtn.addEventListener("click", ()=> moveItem(c.id, idx, idx + 1));
+            wrap.appendChild(tool);
+          }
+
+          box.appendChild(wrap);
+        }
+
+        d.appendChild(box);
+        tocEl.appendChild(d);
+      }
+
+      $("countPill").textContent = `${total}件`;
+      markActive();
+    }
+
+    function markActive(){
+      const {catId, itemId} = state.current;
+      document.querySelectorAll(".itemBtn").forEach(btn => {
+        const ok = btn.dataset.cat === catId && btn.dataset.item === itemId;
+        btn.classList.toggle("active", ok);
+      });
+    }
+
+    function openDetail(catId, itemId){
+      const c = findCat(catId);
+      const it = findItem(catId, itemId);
+      if(!c || !it) return;
+
+      state.current = {catId, itemId};
+      setHash(catId, itemId);
+
+      $("detailTitle").textContent = `${c.title} / ${it.title}`;
+      $("detailCatPill").textContent = `カテゴリ: ${c.title}`;
+      $("detailUpdatedPill").textContent = `更新: ${fmt(it.updatedAt || it.createdAt)}`;
+      $("detailNote").textContent = it.note || "";
+      $("detailBody").textContent = it.body || "";
+      $("detailIds").textContent = `c:${c.id} / i:${it.id}`;
+
+      markActive();
+      $("detailTitle").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    function ensureFirstSelection(){
+      const h = getHash();
+      if(h.catId && h.itemId && findItem(h.catId, h.itemId)){
+        openDetail(h.catId, h.itemId);
+        return;
+      }
+      if(state.current.catId && state.current.itemId && findItem(state.current.catId, state.current.itemId)){
+        openDetail(state.current.catId, state.current.itemId);
+        return;
+      }
+      const firstCat = state.data?.categories?.[0];
+      const firstItem = firstCat?.items?.[0];
+      if(firstCat && firstItem){
+        openDetail(firstCat.id, firstItem.id);
+      }else{
+  
