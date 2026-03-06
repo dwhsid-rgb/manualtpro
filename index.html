@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>社内マニュアル</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280;
+      --border:#e5e7eb; --accent:#2563eb; --danger:#ef4444;
+      --shadow:0 10px 24px rgba(0,0,0,.08); --r:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;z-index:10;background:rgba(246,247,251,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    h1{margin:6px 0 0;font-size:26px}
+    .sub{margin:6px 0 12px;color:var(--muted);font-size:13px;line-height:1.5}
+    .toprow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .grid{display:grid;gap:14px;grid-template-columns:1fr}
+    @media(min-width:960px){.grid{grid-template-columns:460px 1fr}}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+    .panel h2{margin:0;padding:14px 16px;font-size:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .panel .body{padding:14px 16px}
+    .search{width:100%;padding:12px;border-radius:14px;border:1px solid var(--border);outline:none;background:#fff}
+    details{border-top:1px solid var(--border)}
+    details:first-of-type{border-top:none}
+    summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    summary::-webkit-details-marker{display:none}
+    .badge,.pill{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px;color:var(--muted);white-space:nowrap}
+    .items{padding:0 8px 10px}
+    .item{border:1px solid var(--border);border-radius:14px;background:#fff;margin:6px 0;padding:10px}
+    .item.active{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+    .itemTitle{font-weight:800}
+    .itemNote{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.35}
+    .content{white-space:pre-wrap;line-height:1.85;font-size:15px}
+    .hint,.small{color:var(--muted);font-size:12px;line-height:1.6}
+    .btnRow,.toolRow{display:flex;gap:8px;flex-wrap:wrap}
+    .toolRow{margin-top:8px}
+    .btn,.miniBtn{
+      border:1px solid var(--border);background:#fff;border-radius:12px;
+      padding:9px 10px;cursor:pointer;font-weight:750;color:var(--text)
+    }
+    .miniBtn{padding:6px 8px;font-size:12px}
+    .btn:hover,.miniBtn:hover{border-color:#c7d2fe}
+    .btn.primary{border-color:#bfdbfe;background:rgba(37,99,235,.08)}
+    .btn.danger,.miniBtn.danger{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:#991b1b}
+    .btn:disabled,.miniBtn:disabled{opacity:.5;cursor:not-allowed}
+    .metaLine{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .hr{height:1px;background:var(--border);margin:12px 0}
+    .error{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;font-size:13px;line-height:1.6}
+    .k{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Courier New",monospace}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="toprow">
+        <div>
+          <h1 id="siteTitle">社内マニュアル</h1>
+          <div class="sub" id="siteDesc">読み込み中...</div>
+        </div>
+        <div class="btnRow">
+          <button class="btn" id="copyLinkBtn">この詳細リンクをコピー</button>
+          <button class="btn" id="loadPublishedBtn">公開中データを読み込む</button>
+          <button class="btn" id="exportBtn">data.json書き出し</button>
+          <button class="btn" id="importBtn">読み込み</button>
+          <button class="btn danger" id="resetBtn">初期化</button>
+          <span class="pill" id="modePill">閲覧</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <div class="panel">
+        <h2>
+          <span>目次</span>
+          <div class="btnRow">
+            <span class="pill" id="countPill">0件</span>
+            <button class="btn primary" id="addCatBtn">＋カテゴリ</button>
+          </div>
+        </h2>
+        <div class="body">
+          <input class="search" id="q" type="search" placeholder="検索（カテゴリ / 項目 / 本文）">
+          <div class="small" id="tocHint" style="margin-top:10px"></div>
+          <div class="error" id="loadError"></div>
+        </div>
+        <div id="toc"></div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span id="detailTitle">詳細</span>
+          <button class="btn primary" id="editItemBtn">編集</button>
+        </h2>
+        <div class="body">
+          <div class="metaLine">
+            <span class="pill" id="detailCatPill">-</span>
+            <span class="pill" id="detailUpdatedPill">更新: -</span>
+          </div>
+          <div style="height:10px"></div>
+          <div class="hint" id="detailNote">左から項目を選んでください。</div>
+          <div class="hr"></div>
+          <div class="content" id="detailBody"></div>
+          <div style="height:14px"></div>
+          <div class="btnRow">
+            <button class="btn" id="addItemBtn">＋見出し（項目）</button>
+            <button class="btn danger" id="deleteItemBtn">この項目を削除</button>
+            <span class="pill k" id="detailIds">#</span>
+          </div>
+          <div class="small" style="margin-top:10px">
+            編集はこの端末のブラウザに保存されます。公開に反映したいときは data.json を書き出して GitHub の data.json を差し替えてください。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "manual_browser_editor_simple_v1";
+    const isEditMode = new URLSearchParams(location.search).get("edit") === "1";
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      data: null,
+      query: "",
+      current: { catId: null, itemId: null }
+    };
+
+    function nowISO(){ return new Date().toISOString(); }
+    function fmt(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString("ja-JP",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+      }catch(e){ return "-"; }
+    }
+    function shortId(){ return Math.random().toString(36).slice(2,10); }
+    function normalize(s){ return String(s || "").toLowerCase().trim(); }
+    function esc(s){
+      return String(s).replace(/[&<>"']/g, ch => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[ch]));
+    }
+
+    function defaultData(){
+      const t = nowISO();
+      return {
+        site: {
+          title: "社内マニュアル",
+          desc: "カテゴリ → 項目 → 詳細。編集はURL末尾に ?edit=1"
+        },
+        categories: []
+      };
+    }
+
+    function saveLocal(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+      render();
+    }
+
+    function loadLocal(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return null;
+        const parsed = JSON.parse(raw);
+        if(!parsed || !Array.isArray(parsed.categories)) return null;
+        return parsed;
+      }catch(e){
+        return null;
+      }
+    }
+
+    async function loadPublished(){
+      try{
+        $("loadError").style.display = "none";
+        const res = await fetch("./data.json?v=" + Date.now(), { cache: "no-store" });
+        if(!res.ok) throw new Error("data.json の読み込み失敗");
+        const data = await res.json();
+        if(!data || !Array.isArray(data.categories)) throw new Error("JSON形式エラー");
+        state.data = data;
+        saveLocal();
+      }catch(e){
+        $("loadError").style.display = "block";
+        $("loadError").textContent = "公開中の data.json を読み込めませんでした。data.json が存在するか、JSONの形式が正しいか確認してください。";
+        console.error(e);
+      }
+    }
+
+    function getHash(){
+      const m = (location.hash || "").match(/^#\/c\/([^/]+)\/i\/([^/]+)$/);
+      if(!m) return { catId:null, itemId:null };
+      return { catId: decodeURIComponent(m[1]), itemId: decodeURIComponent(m[2]) };
+    }
+    function setHash(catId, itemId){
+      location.hash = "#/c/" + encodeURIComponent(catId) + "/i/" + encodeURIComponent(itemId);
+    }
+
+    function findCat(catId){
+      return state.data.categories.find(c => c.id === catId) || null;
+    }
+    function findItem(catId, itemId){
+      const c = findCat(catId);
+      if(!c) return null;
+      return c.items.find(i => i.id === itemId) || null;
+    }
+
+    function filteredCats(){
+      const q = normalize(state.query);
+      if(!q) return state.data.categories;
+      return state.data.categories.map(c => {
+        const catHit = normalize(c.title).includes(q);
+        const items = c.items.filter(i => normalize(c.title + " " + i.title + " " + (i.note||"") + " " + (i.body||"")).includes(q));
+        return catHit ? { ...c, items:[...c.items] } : { ...c, items };
+      }).filter(c => c.items.length > 0 || normalize(c.title).includes(q));
+    }
+
+    function renderHeader(){
+      $("siteTitle").textContent = state.data.site?.title || "社内マニュアル";
+      $("siteDesc").textContent = (state.data.site?.desc || "") + (isEditMode ? "（編集モード）" : "");
+      $("modePill").textContent = isEditMode ? "編集" : "閲覧";
+
+      $("addCatBtn").disabled = !isEditMode;
+      $("editItemBtn").disabled = !isEditMode;
+      $("addItemBtn").disabled = !isEditMode;
+      $("deleteItemBtn").disabled = !isEditMode;
+      $("importBtn").disabled = !isEditMode;
+      $("resetBtn").disabled = !isEditMode;
+
+      $("tocHint").innerHTML = isEditMode
+        ? "編集モード：ブラウザ上で編集できます。公開反映したいときは data.json を書き出して GitHub の data.json を差し替えてください。"
+        : "閲覧モードです。編集するには URL 末尾に ?edit=1 を付けて開いてください。";
+    }
+
+    function renderTOC(){
+      const toc = $("toc");
+      toc.innerHTML = "";
+      const cats = filteredCats();
+      let total = 0;
+
+      cats.forEach(c => {
+        total += c.items.length;
+
+        const d = document.createElement("details");
+        d.open = true;
+
+        const s = document.createElement("summary");
+        s.innerHTML = "<span>" + esc(c.title) + "</span><span class='badge'>" + c.items.length + "件</span>";
+        d.appendChild(s);
+
+        const box = document.createElement("div");
+        box.className = "items";
+
+        if(isEditMode){
+          const row = document.createElement("div");
+          row.className = "toolRow";
+          row.innerHTML = "<button class='miniBtn'>カテゴリ設定</button><button class='miniBtn'>＋見出し追加</button>";
+          row.children[0].onclick = () => editCategory(c.id);
+          row.children[1].onclick = () => addItem(c.id);
+          box.appendChild(row);
+        }
+
+        c.items.forEach((it, idx) => {
+          const wrap = document.createElement("div");
+          wrap.className = "item" + (state.current.catId === c.id && state.current.itemId === it.id ? " active" : "");
+
+          const main = document.createElement("button");
+          main.className = "itemBtn";
+          main.innerHTML = "<div><div class='itemTitle'>" + esc(it.title) + "</div><div class='itemNote'>" + esc(it.note || "") + "</div></div><div class='badge k'>#" + esc(c.id) + "/" + esc(it.id) + "</div>";
+          main.onclick = () => openDetail(c.id, it.id);
+          wrap.appendChild(main);
+
+          if(isEditMode){
+            const row = document.createElement("div");
+            row.className = "toolRow";
+            const up = document.createElement("button");
+            up.className = "miniBtn";
+            up.textContent = "↑ 上へ";
+            up.disabled = idx === 0;
+            up.onclick = () => moveItem(c.id, idx, idx - 1);
+
+            const down = document.createElement("button");
+            down.className = "miniBtn";
+            down.textContent = "↓ 下へ";
+            down.disabled = idx === c.items.length - 1;
+            down.onclick = () => moveItem(c.id, idx, idx + 1);
+
+            row.appendChild(up);
+            row.appendChild(down);
+            wrap.appendChild(row);
+          }
+
+          box.appendChild(wrap);
+        });
+
+        d.appendChild(box);
+        toc.appendChild(d);
+      });
+
+      $("countPill").textContent = total + "件";
+    }
+
+    function openDetail(catId, itemId){
+      const c = findCat(catId);
+      const it = findItem(catId, itemId);
+      if(!c || !it) return;
+
+      state.current = { catId, itemId };
+      setHash(catId, itemId);
+
+      $("detailTitle").textContent = c.title + " / " + it.title;
+      $("detailCatPill").textContent = "カテゴリ: " + c.title;
+      $("detailUpdatedPill").textContent = "更新: " + fmt(it.updatedAt || it.createdAt);
+      $("detailNote").textContent = it.note || "";
+      $("detailBody").textContent = it.body || "";
+      $("detailIds").textContent = "c:" + c.id + " / i:" + it.id;
+
+      renderTOC();
+    }
+
+    function ensureSelection(){
+      const h = getHash();
+      if(h.catId && h.itemId && findItem(h.catId, h.itemId)){
+        openDetail(h.catId, h.itemId);
+        return;
+      }
+      const c = state.data.categories[0];
+      const i = c && c.items[0];
+      if(c && i) openDetail(c.id, i.id);
+    }
+
+    function render(){
+      renderHeader();
+      renderTOC();
+      if(state.current.catId && state.current.itemId && findItem(state.current.catId, state.current.itemId)){
+        openDetail(state.current.catId, state.current.itemId);
+      }else{
+        ensureSelection();
+      }
+    }
+
+    function addCategory(){
+      const name = prompt("カテゴリ名を入力");
+      if(!name) return;
+      state.data.categories.unshift({
+        id: shortId(),
+        title: name,
+        updatedAt: nowISO(),
+        items: []
+      });
+      saveLocal();
+    }
+
+    function editCategory(catId){
+      const c = findCat(catId);
+      if(!c) return;
+      const name = prompt("カテゴリ名を編集", c.title);
+      if(name === null) return;
+      const trimmed = name.trim();
+      if(!trimmed) return;
+
+      const del = confirm("このカテゴリ名を変更しますか？\nOKで変更 / キャンセルで削除確認へ");
+      if(del){
+        c.title = trimmed;
+        c.updatedAt = nowISO();
+        saveLocal();
+        return;
+      }
+
+      const reallyDelete = confirm("このカテゴリを削除しますか？\n中の項目も消えます。");
+      if(!reallyDelete) return;
+
+      state.data.categories = state.data.categories.filter(x => x.id !== catId);
+      if(state.current.catId === catId){
+        state.current = { catId:null, itemId:null };
+        location.hash = "";
+      }
+      saveLocal();
+    }
+
+    function addItem(catId){
+      const c = findCat(catId);
+      if(!c) return;
+      const title = prompt("見出し名を入力");
+      if(!title) return;
+      const note = prompt("メモ（任意）", "") || "";
+      const body = prompt("本文を入力", "■ 目的\n\n■ 手順\n1.\n2.") || "";
+      const t = nowISO();
+
+      const item = {
+        id: shortId(),
+        title: title.trim() || "（無題項目）",
+        note,
+        body,
+        createdAt: t,
+        updatedAt: t
+      };
+      c.items.push(item);
+      c.updatedAt = t;
+      state.current = { catId, itemId: item.id };
+      saveLocal();
+      openDetail(catId, item.id);
+    }
+
+    function editItem(){
+      const { catId, itemId } = state.current;
+      const it = findItem(catId, itemId);
+      const c = findCat(catId);
+      if(!it || !c) return;
+
+      const title = prompt("見出し名を編集", it.title);
+      if(title === null) return;
+      const note = prompt("メモを編集", it.note || "");
+      if(note === null) return;
+      const body = prompt("本文を編集", it.body || "");
+      if(body === null) return;
+
+      it.title = title.trim() || "（無題項目）";
+      it.note = note;
+      it.body = body;
+      it.updatedAt = nowISO();
+      c.updatedAt = nowISO();
+
+      saveLocal();
+      openDetail(catId, itemId);
+    }
+
+    function deleteItem(){
+      const { catId, itemId } = state.current;
+      const c = findCat(catId);
+      if(!c || !itemId) return;
+      if(!confirm("この項目を削除します。よい？")) return;
+
+      c.items = c.items.filter(i => i.id !== itemId);
+      c.updatedAt = nowISO();
+
+      const next = c.items[0] || null;
+      if(next){
+        state.current = { catId, itemId: next.id };
+      }else{
+        state.current = { catId:null, itemId:null };
+        location.hash = "";
+      }
+      saveLocal();
+    }
+
+    function moveItem(catId, from, to){
+      const c = findCat(catId);
+      if(!c) return;
+      if(to < 0 || to >= c.items.length) return;
+
+      const moved = c.items.splice(from, 1)[0];
+      c.items.splice(to, 0, moved);
+      c.updatedAt = nowISO();
+      state.current = { catId, itemId: moved.id };
+      saveLocal();
+      openDetail(catId, moved.id);
+    }
+
+    function exportJson(){
+      const text = JSON.stringify(state.data, null, 2);
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJson(){
+      const raw = prompt("data.json の内容を貼り付けてください");
+      if(!raw) return;
+      try{
+        const parsed = JSON.parse(raw);
+        if(!parsed || !Array.isArray(parsed.categories)) throw new Error("categories が見つかりません");
+        state.data = parsed;
+        state.current = { catId:null, itemId:null };
+        saveLocal();
+      }catch(e){
+        alert("読み込み失敗: " + e.message);
+      }
+    }
+
+    function resetLocal(){
+      if(!confirm("この端末のブラウザ保存データを初期化します。よい？")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state.data = defaultData();
+      state.current = { catId:null, itemId:null };
+      render();
+    }
+
+    $("q").addEventListener("input", e => {
+      state.query = e.target.value;
+      renderTOC();
+    });
+
+    $("copyLinkBtn").onclick = async () => {
+      try{
+        await navigator.clipboard.writeText(location.href);
+        alert("リンクをコピーしました！");
+      }catch(e){
+        prompt("コピーできない場合はこれを手動コピー", location.href);
+      }
+    };
+
+    $("loadPublishedBtn").onclick = async () => {
+      if(!confirm("公開中の data.json を読み込んで、この端末の編集中データを上書きします。よい？")) return;
+      await loadPublished();
+    };
+
+    $("exportBtn").onclick = exportJson;
+    $("importBtn").onclick = () => isEditMode ? importJson() : alert("編集モードで開いてください");
+    $("resetBtn").onclick = () => isEditMode ? resetLocal() : alert("編集モードで開いてください");
+    $("addCatBtn").onclick = () => isEditMode ? addCategory() : alert("編集するには ?edit=1");
+    $("addItemBtn").onclick = () => isEditMode ? addItem(state.current.catId || (state.data.categories[0] && state.data.categories[0].id)) : alert("編集するには ?edit=1");
+    $("editItemBtn").onclick = () => isEditMode ? editItem() : alert("編集するには ?edit=1");
+    $("deleteItemBtn").onclick = () => isEditMode ? deleteItem() : alert("編集するには ?edit=1");
+
+    window.addEventListener("hashchange", () => {
+      const h = getHash();
+      if(h.catId && h.itemId && findItem(h.catId, h.itemId)){
+        openDetail(h.catId, h.itemId);
+      }
+    });
+
+    state.data = loadLocal() || defaultData();
+    render();
+  </script>
+</body>
+</html>
