@@ -184,11 +184,10 @@
   </dialog>
 
   <script>
-    // ===== 設定 =====
     const STORAGE_KEY = "manual_2layer_v1";
     const isEditMode = new URLSearchParams(location.search).get("edit") === "1";
-
     const $ = (id) => document.getElementById(id);
+
     function nowISO(){ return new Date().toISOString(); }
     function fmt(iso){
       try{
@@ -204,32 +203,18 @@
       }[s]));
     }
 
-    // ===== データ =====
     function defaultData(){
       const t = nowISO();
       return {
-        site: {
-          title: "社内マニュアル",
-          desc: "カテゴリ → 見出し（項目）→ 詳細。編集はURL末尾に ?edit=1"
-        },
+        site: { title: "社内マニュアル", desc: "カテゴリ → 見出し（項目）→ 詳細。編集はURL末尾に ?edit=1" },
         categories: [
-          {
-            id:"dcards",
-            title:"dカード",
-            updatedAt:t,
-            items:[
-              { id:"gold", title:"GOLD", note:"年会費 / 特典 / 申込条件", body:"■ 目的\nGOLDの要点をまとめる\n\n■ 手順\n1. ...\n2. ...\n\n■ 注意点\n・...", createdAt:t, updatedAt:t },
-              { id:"plat", title:"プラチナ", note:"対象者 / 注意点", body:"■ 注意\n・規約を確認\n・例外は相談", createdAt:t, updatedAt:t }
-            ]
-          },
-          {
-            id:"procedure",
-            title:"手続き",
-            updatedAt:t,
-            items:[
-              { id:"kyc", title:"本人確認", note:"差し戻し例", body:"■ 差し戻し例\n・画像不鮮明\n・期限切れ\n・住所不一致", createdAt:t, updatedAt:t }
-            ]
-          }
+          { id:"dcards", title:"dカード", updatedAt:t, items:[
+            { id:"gold", title:"GOLD", note:"年会費 / 特典 / 申込条件", body:"■ 目的\nGOLDの要点をまとめる\n\n■ 手順\n1. ...\n2. ...\n\n■ 注意点\n・...", createdAt:t, updatedAt:t },
+            { id:"plat", title:"プラチナ", note:"対象者 / 注意点", body:"■ 注意\n・規約を確認\n・例外は相談", createdAt:t, updatedAt:t }
+          ]},
+          { id:"procedure", title:"手続き", updatedAt:t, items:[
+            { id:"kyc", title:"本人確認", note:"差し戻し例", body:"■ 差し戻し例\n・画像不鮮明\n・期限切れ\n・住所不一致", createdAt:t, updatedAt:t }
+          ]}
         ]
       };
     }
@@ -247,16 +232,13 @@
         const parsed = JSON.parse(raw);
         if(!parsed?.categories || !Array.isArray(parsed.categories)) return defaultData();
         return parsed;
-      }catch(e){
-        return defaultData();
-      }
+      }catch(e){ return defaultData(); }
     }
     function saveData(){
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
       render();
     }
 
-    // ===== ルーティング（直リンク） #/c/<catId>/i/<itemId> =====
     function getHash(){
       const h = location.hash || "";
       const m = h.match(/^#\/c\/([^\/]+)\/i\/([^\/]+)$/);
@@ -274,7 +256,6 @@
       return c.items.find(i=>i.id===itemId) || null;
     }
 
-    // ===== 検索フィルタ =====
     function filterCats(){
       const q = normalize(state.query);
       if(!q) return state.data.categories;
@@ -286,16 +267,12 @@
           const hay = normalize(`${i.title} ${i.note||""} ${i.body||""}`);
           return hay.includes(q);
         });
-        if(catHit){
-          out.push({...c, items:[...c.items]});
-        }else if(items.length){
-          out.push({...c, items});
-        }
+        if(catHit) out.push({...c, items:[...c.items]});
+        else if(items.length) out.push({...c, items});
       }
       return out;
     }
 
-    // ===== 描画 =====
     function renderHeader(){
       $("siteTitle").textContent = state.data.site?.title || "マニュアル";
       const desc = state.data.site?.desc || "";
@@ -355,6 +332,7 @@
           box.appendChild(editCatBtn);
         }
 
+        // 項目一覧
         for(const it of c.items){
           const b = document.createElement("button");
           b.className = "itemBtn";
@@ -370,6 +348,22 @@
           `;
           b.addEventListener("click", ()=> openDetail(c.id, it.id));
           box.appendChild(b);
+        }
+
+        // ★ここが追加：カテゴリ内「＋見出し追加」（項目0でも追加できる）
+        if(isEditMode){
+          const addBtn = document.createElement("button");
+          addBtn.className = "itemBtn";
+          addBtn.type = "button";
+          addBtn.innerHTML = `
+            <div>
+              <div class="itemTitle">＋ 見出し追加</div>
+              <div class="itemNote">このカテゴリに新しい項目を作成</div>
+            </div>
+            <div class="badge k">c:${escapeHtml(c.id)}</div>
+          `;
+          addBtn.addEventListener("click", ()=> openItemCreate(c.id));
+          box.appendChild(addBtn);
         }
 
         d.appendChild(box);
@@ -403,23 +397,18 @@
     }
 
     function ensureFirstSelection(){
-      // ハッシュが有効ならそれ優先
       const h = getHash();
       if(h.catId && h.itemId && findItem(h.catId, h.itemId)){
         openDetail(h.catId, h.itemId);
         return;
       }
-      // 現在選択が有効なら維持
       if(state.current.catId && state.current.itemId && findItem(state.current.catId, state.current.itemId)){
         openDetail(state.current.catId, state.current.itemId);
         return;
       }
-      // 最初の項目へ
       const firstCat = state.data.categories[0];
       const firstItem = firstCat?.items?.[0];
-      if(firstCat && firstItem){
-        openDetail(firstCat.id, firstItem.id);
-      }
+      if(firstCat && firstItem) openDetail(firstCat.id, firstItem.id);
     }
 
     function render(){
@@ -486,17 +475,31 @@
     }
 
     // ===== 編集：項目 =====
-    function openItemCreate(){
-      const catId = state.current.catId || state.data.categories[0]?.id;
+    // ★カテゴリIDを指定して追加できる版（項目0のカテゴリでもOK）
+    function openItemCreate(catIdArg){
+      const catId = catIdArg || state.current.catId || state.data.categories[0]?.id;
       if(!catId){
         alert("先にカテゴリを作ってください");
         return;
       }
+      state.current = { catId, itemId: null };
+
       $("itemDlgTitle").textContent = "項目追加";
       $("itemIdPill").textContent = "ID:(自動生成)";
       $("itemTitle").value = "";
       $("itemNote").value = "";
-      $("itemBody").value = "■ 目的\n\n■ 手順\n1. \n2. \n\n■ 注意点\n・\n\n■ トラブル時\n・";
+      $("itemBody").value =
+`■ 目的
+
+■ 手順
+1.
+2.
+
+■ 注意点
+・
+
+■ トラブル時
+・`;
       $("itemDlg").dataset.catId = catId;
       $("itemDlg").dataset.itemId = "";
       $("itemDlg").showModal();
@@ -538,147 +541,4 @@
         it.note = note;
         it.body = body;
         it.updatedAt = t;
-        state.current = {catId, itemId};
-      }else{
-        const newId = shortId();
-        c.items.unshift({ id:newId, title, note, body, createdAt:t, updatedAt:t });
-        state.current = {catId, itemId:newId};
-      }
-      c.updatedAt = t;
-      saveData();
-      $("itemDlg").close();
-      openDetail(state.current.catId, state.current.itemId);
-    }
-
-    function deleteItem(){
-      const {catId,itemId} = state.current;
-      if(!catId || !itemId) return;
-      const c = findCat(catId);
-      if(!c) return;
-      if(!confirm("この項目を削除します。よい？")) return;
-
-      const idx = c.items.findIndex(i=>i.id===itemId);
-      if(idx>=0) c.items.splice(idx,1);
-      c.updatedAt = nowISO();
-
-      // 次の表示先
-      let nextCat = c;
-      let nextItem = c.items[0] || null;
-
-      if(!nextItem){
-        nextCat = state.data.categories.find(x=>x.items.length) || null;
-        nextItem = nextCat?.items?.[0] || null;
-      }
-
-      if(nextCat && nextItem){
-        state.current = {catId: nextCat.id, itemId: nextItem.id};
-      }else{
-        state.current = {catId:null, itemId:null};
-        location.hash = "#/";
-      }
-
-      saveData();
-    }
-
-    // ===== Export / Import / Reset =====
-    function doExport(){
-      const json = JSON.stringify(state.data, null, 2);
-      const blob = new Blob([json], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "manual_backup.json";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function openImport(){
-      $("importText").value = "";
-      $("importDlg").showModal();
-      $("importText").focus();
-    }
-
-    function doImport(){
-      try{
-        const raw = $("importText").value.trim();
-        const parsed = JSON.parse(raw);
-        if(!parsed?.categories || !Array.isArray(parsed.categories)) throw new Error("categories が見つからない");
-
-        parsed.site = parsed.site || {title:"マニュアル", desc:""};
-        parsed.categories = parsed.categories.map(c=>({
-          id: String(c.id || shortId()).slice(0, 24),
-          title: String(c.title || "（無題カテゴリ）"),
-          updatedAt: c.updatedAt || nowISO(),
-          items: Array.isArray(c.items) ? c.items.map(i=>({
-            id: String(i.id || shortId()).slice(0, 24),
-            title: String(i.title || "（無題項目）"),
-            note: String(i.note || ""),
-            body: String(i.body || ""),
-            createdAt: i.createdAt || nowISO(),
-            updatedAt: i.updatedAt || i.createdAt || nowISO(),
-          })) : []
-        }));
-
-        state.data = parsed;
-        state.current = {catId:null, itemId:null};
-        saveData();
-        $("importDlg").close();
-      }catch(e){
-        alert("読み込み失敗: " + (e?.message || e));
-      }
-    }
-
-    function doReset(){
-      if(!confirm("この端末の保存データを初期化します。よい？")) return;
-      localStorage.removeItem(STORAGE_KEY);
-      state.data = defaultData();
-      state.current = {catId:null, itemId:null};
-      render();
-    }
-
-    // ===== イベント =====
-    $("q").addEventListener("input", (e)=>{ state.query = e.target.value; renderTOC(); });
-
-    window.addEventListener("hashchange", ()=>{
-      const h = getHash();
-      if(h.catId && h.itemId && findItem(h.catId, h.itemId)){
-        openDetail(h.catId, h.itemId);
-      }
-    });
-
-    $("copyLinkBtn").addEventListener("click", async ()=>{
-      const url = location.href;
-      try{
-        await navigator.clipboard.writeText(url);
-        alert("リンクをコピーしました！");
-      }catch(e){
-        prompt("コピーできない場合はこれを手動コピーしてね", url);
-      }
-    });
-
-    $("exportBtn").addEventListener("click", doExport);
-    $("importBtn").addEventListener("click", ()=> isEditMode ? openImport() : alert("読み込みは編集モードで"));
-    $("resetBtn").addEventListener("click", ()=> isEditMode ? doReset() : alert("初期化は編集モードで"));
-
-    $("addCatBtn").addEventListener("click", ()=> isEditMode ? openCatCreate() : alert("編集するには ?edit=1"));
-    $("addItemBtn").addEventListener("click", ()=> isEditMode ? openItemCreate() : alert("編集するには ?edit=1"));
-    $("editItemBtn").addEventListener("click", ()=> isEditMode ? openItemEditor() : alert("編集するには ?edit=1"));
-    $("deleteItemBtn").addEventListener("click", ()=> isEditMode ? deleteItem() : alert("編集するには ?edit=1"));
-
-    $("catCancel").addEventListener("click", ()=> $("catDlg").close());
-    $("catSave").addEventListener("click", saveCat);
-    $("catDelete").addEventListener("click", deleteCat);
-
-    $("itemCancel").addEventListener("click", ()=> $("itemDlg").close());
-    $("itemSave").addEventListener("click", saveItem);
-
-    $("importCancel").addEventListener("click", ()=> $("importDlg").close());
-    $("importDo").addEventListener("click", doImport);
-
-    // ===== 初期描画 =====
-    render();
-  </script>
-</body>
-</html>
+     
